@@ -153,83 +153,158 @@ class PendingApprovals extends StatelessWidget {
     );
   }
 
-  Widget _mobileList() {
-    return Column(
-      children: approvals.asMap().entries.map((entry) {
-        final index = entry.key;
-        final approval = entry.value;
+ 
+Widget _mobileList() {
+  return Column(
+    children: approvals.asMap().entries.map((entry) {
+      final index = entry.key;
+      final approval = entry.value;
+      final name = approval['name'] ?? '';
+      final initial = name.isNotEmpty
+          ? name[0].toUpperCase()
+          : '?';
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 19,
-                backgroundColor: const Color(0xFFEFF6FF),
-                child: Text(
-                  approval['name']![0],
-                  style: const TextStyle(
-                    color: Color(0xFF2563EB),
-                    fontWeight: FontWeight.bold,
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: const Color(0xFFE8EDF5),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: const Color(0xFFEFF6FF),
+                  child: Text(
+                    initial,
+                    style: const TextStyle(
+                      color: Color(0xFF2563EB),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      approval['name']!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF172554),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${approval['type']} • ${approval['department']}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      approval['date']!,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Color(0xFF94A3B8),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 5,
-                      children: [
-                        _actionButton(
-                          label: 'Approve',
-                          color: const Color(0xFF2563EB),
-                          onPressed: () =>
-                              onApproval(index, 'Approved'),
-                        ),
-                        _actionButton(
-                          label: 'Decline',
-                          color: const Color(0xFFDC2626),
-                          outlined: true,
-                          onPressed: () =>
-                              onApproval(index, 'Declined'),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+            const Divider(height: 22),
+
+            _mobileInfoRow(
+              'Request Type',
+              approval['type'] ?? '',
+            ),
+            const SizedBox(height: 10),
+
+            _mobileInfoRow(
+              'Department',
+              approval['department'] ?? '',
+            ),
+            const SizedBox(height: 10),
+
+            _mobileInfoRow(
+              'Date',
+              approval['date'] ?? '',
+            ),
+
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: ElevatedButton(
+                      onPressed: () =>
+                          onApproval(index, 'Approved'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFF16858B),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Approve',
+                        style: TextStyle(fontSize: 11),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: SizedBox(
+                    height: 36,
+                    child: OutlinedButton(
+                      onPressed: () =>
+                          onApproval(index, 'Declined'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor:
+                            const Color(0xFF64748B),
+                        side: const BorderSide(
+                          color: Color(0xFFE2E8F0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Decline',
+                        style: TextStyle(fontSize: 11),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }).toList(),
+  );
+}
+
+Widget _mobileInfoRow(String label, String value) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 10,
+          color: Color(0xFF64748B),
+        ),
+      ),
+      const SizedBox(width: 8),
+      Flexible(
+        child: Text(
+          value,
+          textAlign: TextAlign.end,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF172554),
           ),
-        );
-      }).toList(),
-    );
-  }
+        ),
+      ),
+    ],
+  );
+}
+
 
   Widget _actionButton({
     required String label,
