@@ -223,81 +223,157 @@ class ProductionStaffing extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileLayout() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Present vs. required operators, today',
-          style: TextStyle(
-            fontSize: 11,
-            color: Color(0xFF64748B),
-          ),
+  
+Widget _buildMobileLayout() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        'Present vs. required operators, today',
+        style: TextStyle(
+          fontSize: 11,
+          color: Color(0xFF64748B),
         ),
-        const SizedBox(height: 16),
-        ...departments.map((department) {
-          final progress = department['progress'] as double;
+      ),
+      const SizedBox(height: 14),
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        department['name'],
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+      ...departments.map((department) {
+        final progress = department['progress'] as double;
+        final status = department['status'] as String;
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: const Color(0xFFE8EDF5),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                department['name'],
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF172554),
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                'Supervisor: ${department['supervisor']}',
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+              const Divider(height: 20),
+
+              _mobileInfoRow(
+                'Present / Target',
+                department['present'],
+              ),
+              const SizedBox(height: 12),
+
+              const Text(
+                'Staffing',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+              const SizedBox(height: 6),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 7,
+                        backgroundColor:
+                            const Color(0xFFE8EDF5),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(
+                          progress < 0.80
+                              ? const Color(0xFFDC6B45)
+                              : const Color(0xFF16858B),
                         ),
                       ),
                     ),
-                    Text(
-                      department['present'],
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Supervisor: ${department['supervisor']}',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Color(0xFF64748B),
                   ),
-                ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 7,
-                    backgroundColor: const Color(0xFFE8EDF5),
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      blue,
+                  const SizedBox(width: 10),
+                  Text(
+                    department['staffing'],
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${department['staffing']} • ${department['status']}',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Color(0xFF64748B),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+              _mobileInfoRow(
+                'Running Style',
+                department['style'],
+              ),
+              const SizedBox(height: 12),
+
+              Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Status',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Color(0xFF64748B),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
+                  _statusLabel(status),
+                ],
+              ),
+            ],
+          ),
+        );
+      }),
+    ],
+  );
+}
+
+Widget _mobileInfoRow(String label, String value) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 10,
+          color: Color(0xFF64748B),
+        ),
+      ),
+      const SizedBox(width: 8),
+      Flexible(
+        child: Text(
+          value,
+          textAlign: TextAlign.end,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF172554),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
 
   Widget _statusLabel(String status) {
     final Color color;
