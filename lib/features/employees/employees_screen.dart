@@ -47,6 +47,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     super.dispose();
   }
 
+  // ADD EMPLOYEE
   Future<void> _showAddEmployeeDialog() async {
     final formKey = GlobalKey<FormState>();
 
@@ -151,7 +152,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     );
 
                     if (duplicate) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      ScaffoldMessenger.of(this.context).showSnackBar(
                         const SnackBar(
                           content: Text(
                             'This Employee ID already exists.',
@@ -206,6 +207,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     designationController.dispose();
   }
 
+  // EMPLOYEE DETAILS
   Future<void> _showEmployeeDetails(
     Map<String, String> employee,
   ) async {
@@ -278,6 +280,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     );
   }
 
+  // EDIT EMPLOYEE
   Future<void> _showEditEmployeeDialog(
     Map<String, String> employee,
   ) async {
@@ -393,7 +396,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     );
 
                     if (duplicate) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      ScaffoldMessenger.of(this.context).showSnackBar(
                         const SnackBar(
                           content: Text(
                             'This Employee ID already exists.',
@@ -437,58 +440,73 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         );
       },
     );
-// এখানে Delete Function
-void _deleteEmployee(Map<String, String> employee) {
-  setState(() {
-    employees.remove(employee);
-  });
-}
-    //Confirmation Dialog তৈরি
-    
-    Future<void> _confirmDeleteEmployee(
-  Map<String, String> employee,
-) async {
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) {
-      return AlertDialog(
-        title: const Text('Delete Employee?'),
-        content: Text(
-          'Are you sure you want to delete '
-          '${employee['name']} (${employee['id']})?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext, false);
-            },
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(dialogContext, true);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Confirm Delete'),
-          ),
-        ],
-      );
-    },
-  );
 
-  if (confirmed == true) {
-    _deleteEmployee(employee);
-  }
-}
     idController.dispose();
     nameController.dispose();
     departmentController.dispose();
     designationController.dispose();
   }
 
+  // DELETE EMPLOYEE
+  void _deleteEmployee(Map<String, String> employee) {
+    setState(() {
+      employees.remove(employee);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Employee deleted successfully (Demo only).'),
+      ),
+    );
+  }
+
+  // DELETE CONFIRMATION DIALOG
+  Future<void> _confirmDeleteEmployee(
+    Map<String, String> employee,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text(
+            'Delete Employee?',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF172554),
+            ),
+          ),
+          content: Text(
+            'Are you sure you want to delete '
+            '${employee['name']} (${employee['id']})?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Confirm Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      _deleteEmployee(employee);
+    }
+  }
+
+  // FORM FIELD
   Widget _formField({
     required TextEditingController controller,
     required String label,
@@ -510,6 +528,7 @@ void _deleteEmployee(Map<String, String> employee) {
     );
   }
 
+  // MAIN SCREEN
   @override
   Widget build(BuildContext context) {
     final filteredEmployees = employees.where((employee) {
@@ -613,10 +632,7 @@ void _deleteEmployee(Map<String, String> employee) {
                         ),
                       ),
                       ElevatedButton.icon(
-                        onPressed: () {
-                          debugPrint('Add Employee button clicked');
-                          _showAddEmployeeDialog();
-                        },
+                        onPressed: _showAddEmployeeDialog,
                         icon: const Icon(Icons.add, size: 17),
                         label: const Text('Add Employee'),
                         style: ElevatedButton.styleFrom(
@@ -626,6 +642,7 @@ void _deleteEmployee(Map<String, String> employee) {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 18),
 
                   TextField(
@@ -707,6 +724,7 @@ void _deleteEmployee(Map<String, String> employee) {
     );
   }
 
+  // SUMMARY CARD
   Widget _summaryCard(
     String title,
     String value,
@@ -752,6 +770,7 @@ void _deleteEmployee(Map<String, String> employee) {
     );
   }
 
+  // EMPLOYEE CARD
   Widget _employeeCard(Map<String, String> employee) {
     final isActive = employee['status'] == 'Active';
 
@@ -840,60 +859,79 @@ void _deleteEmployee(Map<String, String> employee) {
               ),
             ],
           ),
+
           const SizedBox(height: 12),
 
-          // View Details, Edit and Delete buttons side by side.
-Row(
-  children: [
-    Expanded(
-      child: OutlinedButton.icon(
-        onPressed: () => _showEmployeeDetails(employee),
-        icon: const Icon(Icons.visibility_outlined, size: 15),
-        label: const Text(
-          'Details',
-          style: TextStyle(fontSize: 10),
-        ),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: primary,
-          side: const BorderSide(color: primary),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-        ),
-      ),
-    ),
-    const SizedBox(width: 6),
-    Expanded(
-      child: ElevatedButton.icon(
-        onPressed: () => _showEditEmployeeDialog(employee),
-        icon: const Icon(Icons.edit_outlined, size: 15),
-        label: const Text(
-          'Edit',
-          style: TextStyle(fontSize: 10),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 10),
-        ),
-      ),
-    ),
-    const SizedBox(width: 6),
-    Expanded(
-      child: ElevatedButton.icon(
-        onPressed: () => _confirmDeleteEmployee(employee),
-        icon: const Icon(Icons.delete_outline, size: 15),
-        label: const Text(
-          'Delete',
-          style: TextStyle(fontSize: 10),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 10),
-                 ),
-               ),
-             ),
-           ],
-          ), 
+          // DETAILS, EDIT AND DELETE BUTTONS
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () =>
+                      _showEmployeeDetails(employee),
+                  icon: const Icon(
+                    Icons.visibility_outlined,
+                    size: 15,
+                  ),
+                  label: const Text(
+                    'Details',
+                    style: TextStyle(fontSize: 10),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: primary,
+                    side: const BorderSide(color: primary),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () =>
+                      _showEditEmployeeDialog(employee),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    size: 15,
+                  ),
+                  label: const Text(
+                    'Edit',
+                    style: TextStyle(fontSize: 10),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () =>
+                      _confirmDeleteEmployee(employee),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    size: 15,
+                  ),
+                  label: const Text(
+                    'Delete',
+                    style: TextStyle(fontSize: 10),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
