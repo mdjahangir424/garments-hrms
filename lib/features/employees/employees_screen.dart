@@ -842,38 +842,58 @@ void _deleteEmployee(Map<String, String> employee) {
           ),
           const SizedBox(height: 12),
 
-          // View Details and Edit buttons side by side.
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _showEmployeeDetails(employee),
-                  icon: const Icon(Icons.visibility_outlined, size: 16),
-                  label: const Text('View Details'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: primary,
-                    side: const BorderSide(color: primary),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    textStyle: const TextStyle(fontSize: 11),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _showEditEmployeeDialog(employee),
-                  icon: const Icon(Icons.edit_outlined, size: 16),
-                  label: const Text('Edit'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    textStyle: const TextStyle(fontSize: 11),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          // View Details, Edit and Delete buttons side by side.
+Row(
+  children: [
+    Expanded(
+      child: OutlinedButton.icon(
+        onPressed: () => _showEmployeeDetails(employee),
+        icon: const Icon(Icons.visibility_outlined, size: 15),
+        label: const Text(
+          'Details',
+          style: TextStyle(fontSize: 10),
+        ),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: primary,
+          side: const BorderSide(color: primary),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+        ),
+      ),
+    ),
+    const SizedBox(width: 6),
+    Expanded(
+      child: ElevatedButton.icon(
+        onPressed: () => _showEditEmployeeDialog(employee),
+        icon: const Icon(Icons.edit_outlined, size: 15),
+        label: const Text(
+          'Edit',
+          style: TextStyle(fontSize: 10),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+        ),
+      ),
+    ),
+    const SizedBox(width: 6),
+    Expanded(
+      child: ElevatedButton.icon(
+        onPressed: () => _confirmDeleteEmployee(employee),
+        icon: const Icon(Icons.delete_outline, size: 15),
+        label: const Text(
+          'Delete',
+          style: TextStyle(fontSize: 10),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+                 ),
+               ),
+             ),
+           ],
+          ), 
         ],
       ),
     );
