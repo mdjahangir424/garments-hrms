@@ -47,6 +47,187 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     super.dispose();
   }
 
+  Future<void> _showAddEmployeeDialog() async {
+    final formKey = GlobalKey<FormState>();
+
+    final idController = TextEditingController();
+    final nameController = TextEditingController();
+    final departmentController = TextEditingController();
+    final designationController = TextEditingController();
+
+    String newStatus = 'Active';
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text(
+                'Add New Employee',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF172554),
+                ),
+              ),
+              content: SizedBox(
+                width: 420,
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _formField(
+                          controller: idController,
+                          label: 'Employee ID',
+                          hint: 'Example: EMP-004',
+                        ),
+                        const SizedBox(height: 14),
+                        _formField(
+                          controller: nameController,
+                          label: 'Full Name',
+                          hint: 'Enter employee name',
+                        ),
+                        const SizedBox(height: 14),
+                        _formField(
+                          controller: departmentController,
+                          label: 'Department',
+                          hint: 'Example: Sewing',
+                        ),
+                        const SizedBox(height: 14),
+                        _formField(
+                          controller: designationController,
+                          label: 'Designation',
+                          hint: 'Example: Operator',
+                        ),
+                        const SizedBox(height: 14),
+                        DropdownButtonFormField<String>(
+                          value: newStatus,
+                          decoration: const InputDecoration(
+                            labelText: 'Employee Status',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: ['Active', 'Inactive']
+                              .map(
+                                (status) => DropdownMenuItem(
+                                  value: status,
+                                  child: Text(status),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setDialogState(() {
+                                newStatus = value;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (!formKey.currentState!.validate()) {
+                      return;
+                    }
+
+                    final employeeId =
+                        idController.text.trim();
+
+                    final duplicate = employees.any(
+                      (employee) =>
+                          employee['id']!.toLowerCase() ==
+                          employeeId.toLowerCase(),
+                    );
+
+                    if (duplicate) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'This Employee ID already exists.',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+
+                    setState(() {
+                      employees.add({
+                        'id': employeeId,
+                        'name': nameController.text.trim(),
+                        'department':
+                            departmentController.text.trim(),
+                        'designation':
+                            designationController.text.trim(),
+                        'status': newStatus,
+                      });
+
+                      searchController.clear();
+                      searchQuery = '';
+                      selectedFilter = 'All';
+                    });
+
+                    Navigator.pop(dialogContext);
+
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Employee added successfully (Demo only).',
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primary,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Save Employee'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    idController.dispose();
+    nameController.dispose();
+    departmentController.dispose();
+    designationController.dispose();
+  }
+
+  Widget _formField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        border: const OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Please enter $label';
+        }
+        return null;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredEmployees = employees.where((employee) {
@@ -152,7 +333,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         ),
                       ),
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: _showAddEmployeeDialog,
                         icon: const Icon(Icons.add, size: 17),
                         label: const Text('Add Employee'),
                         style: ElevatedButton.styleFrom(
@@ -200,10 +381,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       isDense: true,
                     ),
                     items: ['All', 'Active', 'Inactive']
-                        .map((value) => DropdownMenuItem(
-                              value: value,
-                              child: Text(value),
-                            ))
+                        .map(
+                          (value) => DropdownMenuItem(
+                            value: value,
+                            child: Text(value),
+                          ),
+                        )
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {
@@ -218,9 +401,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
 
                   if (filteredEmployees.isEmpty)
                     const Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 30,
-                      ),
+                      padding: EdgeInsets.symmetric(vertical: 30),
                       child: Center(
                         child: Text(
                           'No employees found',
