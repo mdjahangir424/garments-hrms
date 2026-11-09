@@ -437,7 +437,12 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         );
       },
     );
-
+// এখানে Delete Function
+void _deleteEmployee(Map<String, String> employee) {
+  setState(() {
+    employees.remove(employee);
+  });
+}
     idController.dispose();
     nameController.dispose();
     departmentController.dispose();
