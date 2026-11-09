@@ -11,6 +11,9 @@ class EmployeesScreen extends StatefulWidget {
 class _EmployeesScreenState extends State<EmployeesScreen> {
   static const Color primary = Color(0xFF2563EB);
 
+  final TextEditingController searchController =
+      TextEditingController();
+
   final List<Map<String, String>> employees = [
     {
       'id': 'EMP-001',
@@ -36,12 +39,29 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   ];
 
   String selectedFilter = 'All';
+  String searchQuery = '';
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final filteredEmployees = employees.where((employee) {
-      if (selectedFilter == 'All') return true;
-      return employee['status'] == selectedFilter;
+      final matchesStatus = selectedFilter == 'All' ||
+          employee['status'] == selectedFilter;
+
+      final query = searchQuery.toLowerCase();
+
+      final matchesSearch =
+          employee['name']!.toLowerCase().contains(query) ||
+          employee['id']!.toLowerCase().contains(query) ||
+          employee['department']!.toLowerCase().contains(query) ||
+          employee['designation']!.toLowerCase().contains(query);
+
+      return matchesStatus && matchesSearch;
     }).toList();
 
     final activeCount = employees
@@ -144,6 +164,34 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                   ),
                   const SizedBox(height: 18),
 
+                  TextField(
+                    controller: searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value.trim();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search by name, ID, department...',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                searchController.clear();
+                                setState(() {
+                                  searchQuery = '';
+                                });
+                              },
+                            )
+                          : null,
+                      border: const OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
                   DropdownButtonFormField<String>(
                     value: selectedFilter,
                     decoration: const InputDecoration(
@@ -168,7 +216,23 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
 
                   const SizedBox(height: 16),
 
-                  ...filteredEmployees.map(_employeeCard),
+                  if (filteredEmployees.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 30,
+                      ),
+                      child: Center(
+                        child: Text(
+                          'No employees found',
+                          style: TextStyle(
+                            color: Color(0xFF64748B),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    ...filteredEmployees.map(_employeeCard),
                 ],
               ),
             ),
