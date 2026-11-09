@@ -65,13 +65,13 @@ class ProductionStaffing extends StatelessWidget {
             return _buildMobileLayout();
           }
 
-          return _buildDesktopLayout();
+          return _buildDesktopLayout(constraints.maxWidth);
         },
       ),
     );
   }
 
-  Widget _buildDesktopLayout() {
+  Widget _buildDesktopLayout(double availableWidth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -86,7 +86,7 @@ class ProductionStaffing extends StatelessWidget {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: SizedBox(
-            width: 650,
+            width: availableWidth < 650 ? 650 : availableWidth,
             child: Column(
               children: [
                 _tableHeader(),
