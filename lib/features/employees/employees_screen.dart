@@ -142,8 +142,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       return;
                     }
 
-                    final employeeId =
-                        idController.text.trim();
+                    final employeeId = idController.text.trim();
 
                     final duplicate = employees.any(
                       (employee) =>
@@ -207,6 +206,244 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     designationController.dispose();
   }
 
+  Future<void> _showEmployeeDetails(
+    Map<String, String> employee,
+  ) async {
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text(
+            'Employee Details',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF172554),
+            ),
+          ),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _detailRow('Employee ID', employee['id']!),
+                _detailRow('Full Name', employee['name']!),
+                _detailRow('Department', employee['department']!),
+                _detailRow('Designation', employee['designation']!),
+                _detailRow('Status', employee['status']!),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 115,
+            child: Text(
+              label,
+              style: const TextStyle(
+                color: Color(0xFF64748B),
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                color: Color(0xFF172554),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showEditEmployeeDialog(
+    Map<String, String> employee,
+  ) async {
+    final employeeIndex = employees.indexOf(employee);
+
+    if (employeeIndex == -1) return;
+
+    final formKey = GlobalKey<FormState>();
+
+    final idController =
+        TextEditingController(text: employee['id']);
+    final nameController =
+        TextEditingController(text: employee['name']);
+    final departmentController =
+        TextEditingController(text: employee['department']);
+    final designationController =
+        TextEditingController(text: employee['designation']);
+
+    String editedStatus = employee['status']!;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text(
+                'Edit Employee',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF172554),
+                ),
+              ),
+              content: SizedBox(
+                width: 420,
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _formField(
+                          controller: idController,
+                          label: 'Employee ID',
+                          hint: 'Enter employee ID',
+                        ),
+                        const SizedBox(height: 14),
+                        _formField(
+                          controller: nameController,
+                          label: 'Full Name',
+                          hint: 'Enter employee name',
+                        ),
+                        const SizedBox(height: 14),
+                        _formField(
+                          controller: departmentController,
+                          label: 'Department',
+                          hint: 'Enter department',
+                        ),
+                        const SizedBox(height: 14),
+                        _formField(
+                          controller: designationController,
+                          label: 'Designation',
+                          hint: 'Enter designation',
+                        ),
+                        const SizedBox(height: 14),
+                        DropdownButtonFormField<String>(
+                          value: editedStatus,
+                          decoration: const InputDecoration(
+                            labelText: 'Employee Status',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: ['Active', 'Inactive']
+                              .map(
+                                (status) => DropdownMenuItem(
+                                  value: status,
+                                  child: Text(status),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setDialogState(() {
+                                editedStatus = value;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (!formKey.currentState!.validate()) {
+                      return;
+                    }
+
+                    final editedId = idController.text.trim();
+
+                    final duplicate = employees.asMap().entries.any(
+                      (entry) =>
+                          entry.key != employeeIndex &&
+                          entry.value['id']!.toLowerCase() ==
+                              editedId.toLowerCase(),
+                    );
+
+                    if (duplicate) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'This Employee ID already exists.',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+
+                    setState(() {
+                      employees[employeeIndex] = {
+                        'id': editedId,
+                        'name': nameController.text.trim(),
+                        'department':
+                            departmentController.text.trim(),
+                        'designation':
+                            designationController.text.trim(),
+                        'status': editedStatus,
+                      };
+                    });
+
+                    Navigator.pop(dialogContext);
+
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Employee updated successfully (Demo only).',
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primary,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Update Employee'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    idController.dispose();
+    nameController.dispose();
+    departmentController.dispose();
+    designationController.dispose();
+  }
+
   Widget _formField({
     required TextEditingController controller,
     required String label,
@@ -245,9 +482,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
       return matchesStatus && matchesSearch;
     }).toList();
 
-    final activeCount = employees
-        .where((e) => e['status'] == 'Active')
-        .length;
+    final activeCount =
+        employees.where((e) => e['status'] == 'Active').length;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
@@ -285,8 +521,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 14,
                   mainAxisSpacing: 14,
-                  childAspectRatio:
-                      columns == 1 ? 3.2 : 2.5,
+                  childAspectRatio: columns == 1 ? 3.2 : 2.5,
                   children: [
                     _summaryCard(
                       'Total Employees',
@@ -334,9 +569,9 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       ),
                       ElevatedButton.icon(
                         onPressed: () {
-   debugPrint('Add Employee button clicked');
-  _showAddEmployeeDialog();
-},
+                          debugPrint('Add Employee button clicked');
+                          _showAddEmployeeDialog();
+                        },
                         icon: const Icon(Icons.add, size: 17),
                         label: const Text('Add Employee'),
                         style: ElevatedButton.styleFrom(
@@ -356,7 +591,8 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                       });
                     },
                     decoration: InputDecoration(
-                      hintText: 'Search by name, ID, department...',
+                      hintText:
+                          'Search by name, ID, department...',
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: searchQuery.isNotEmpty
                           ? IconButton(
@@ -474,6 +710,13 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   Widget _employeeCard(Map<String, String> employee) {
     final isActive = employee['status'] == 'Active';
 
+    final initials = employee['name']!
+        .split(' ')
+        .where((part) => part.isNotEmpty)
+        .map((part) => part[0])
+        .take(2)
+        .join();
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -483,73 +726,108 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         ),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundColor: const Color(0xFFDBEAFE),
-            child: Text(
-              employee['name']!
-                  .split(' ')
-                  .map((part) => part[0])
-                  .take(2)
-                  .join(),
-              style: const TextStyle(
-                color: primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  employee['name']!,
+          Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: const Color(0xFFDBEAFE),
+                child: Text(
+                  initials,
                   style: const TextStyle(
+                    color: primary,
                     fontWeight: FontWeight.bold,
-                    fontSize: 12,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${employee['id']} • ${employee['department']}',
-                  style: const TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 10,
-                  ),
-                ),
-                Text(
-                  employee['designation']!,
-                  style: const TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 9,
-              vertical: 5,
-            ),
-            decoration: BoxDecoration(
-              color: isActive
-                  ? const Color(0xFFDCFCE7)
-                  : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              employee['status']!,
-              style: TextStyle(
-                color: isActive
-                    ? const Color(0xFF15803D)
-                    : const Color(0xFF64748B),
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      employee['name']!,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${employee['id']} • ${employee['department']}',
+                      style: const TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 10,
+                      ),
+                    ),
+                    Text(
+                      employee['designation']!,
+                      style: const TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 9,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFFDCFCE7)
+                      : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  employee['status']!,
+                  style: TextStyle(
+                    color: isActive
+                        ? const Color(0xFF15803D)
+                        : const Color(0xFF64748B),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // View Details and Edit buttons side by side.
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => _showEmployeeDetails(employee),
+                  icon: const Icon(Icons.visibility_outlined, size: 16),
+                  label: const Text('View Details'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: primary,
+                    side: const BorderSide(color: primary),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    textStyle: const TextStyle(fontSize: 11),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => _showEditEmployeeDialog(employee),
+                  icon: const Icon(Icons.edit_outlined, size: 16),
+                  label: const Text('Edit'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    textStyle: const TextStyle(fontSize: 11),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
