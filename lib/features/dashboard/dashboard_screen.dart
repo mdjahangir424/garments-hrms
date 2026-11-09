@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 
 import '../../core/widgets/sidebar.dart';
+import '../employees/employees_screen.dart';
 import 'widgets/dashboard_content.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -13,6 +15,8 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final Color primary = const Color(0xFF2563EB);
+
+  bool showEmployees = false;
 
   final List<Map<String, String>> approvals = [
     {
@@ -49,6 +53,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  void openEmployees(bool isMobile) {
+    setState(() {
+      showEmployees = true;
+    });
+
+    if (isMobile) {
+      Navigator.of(context).maybePop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -59,16 +73,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
           drawer: isMobile
               ? Drawer(
                   child: SafeArea(
-                    child: Sidebar(primary: primary),
+                    child: Sidebar(
+                      primary: primary,
+                      onEmployeesTap: () {
+                        openEmployees(true);
+                      },
+                    ),
                   ),
                 )
               : null,
           appBar: isMobile
               ? AppBar(
                   backgroundColor: Colors.white,
-                  title: const Text(
-                    'Garments HRMS',
-                    style: TextStyle(
+                  title: Text(
+                    showEmployees
+                        ? 'Employees'
+                        : 'Garments HRMS',
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -80,14 +101,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
               if (!isMobile)
                 SizedBox(
                   width: 245,
-                  child: Sidebar(primary: primary),
+                  child: Sidebar(
+                    primary: primary,
+                    onEmployeesTap: () {
+                      openEmployees(false);
+                    },
+                  ),
                 ),
               Expanded(
-                child: DashboardContent(
-                  isMobile: isMobile,
-                  approvals: approvals,
-                  onApproval: handleApproval,
-                ),
+                child: showEmployees
+                    ? const EmployeesScreen()
+                    : DashboardContent(
+                        isMobile: isMobile,
+                        approvals: approvals,
+                        onApproval: handleApproval,
+                      ),
               ),
             ],
           ),
