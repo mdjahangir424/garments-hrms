@@ -443,6 +443,46 @@ void _deleteEmployee(Map<String, String> employee) {
     employees.remove(employee);
   });
 }
+    //Confirmation Dialog তৈরি
+    
+    Future<void> _confirmDeleteEmployee(
+  Map<String, String> employee,
+) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) {
+      return AlertDialog(
+        title: const Text('Delete Employee?'),
+        content: Text(
+          'Are you sure you want to delete '
+          '${employee['name']} (${employee['id']})?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext, false);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext, true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Confirm Delete'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmed == true) {
+    _deleteEmployee(employee);
+  }
+}
     idController.dispose();
     nameController.dispose();
     departmentController.dispose();
