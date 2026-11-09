@@ -333,7 +333,10 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         ),
                       ),
                       ElevatedButton.icon(
-                        onPressed: _showAddEmployeeDialog,
+                        onPressed: () {
+   debugPrint('Add Employee button clicked');
+  _showAddEmployeeDialog();
+},
                         icon: const Icon(Icons.add, size: 17),
                         label: const Text('Add Employee'),
                         style: ElevatedButton.styleFrom(
