@@ -42,6 +42,12 @@ void main() {
       );
     });
 
+    test('allows the same factory ID in separate organizations', () {
+      repository.add(factory('F-1', 'ORG-1', 'DHK'));
+      repository.add(factory('F-1', 'ORG-2', 'CTG'));
+      expect(repository.getByOrganization('ORG-2'), hasLength(1));
+    });
+
     test('deletes only within the requested organization', () {
       repository.add(factory('F-1', 'ORG-1', 'DHK'));
       repository.add(factory('F-1', 'ORG-2', 'DHK'));
