@@ -47,7 +47,9 @@ class InMemoryEmployeeRepository implements EmployeeRepository {
 
   @override
   void add(Map<String, String> employee) {
-    _employees.add(Employee.fromMap(employee));
+    final model = Employee.fromMap(employee);
+    _ensureUniqueId(model.id);
+    _employees.add(model);
   }
 
   @override
@@ -56,7 +58,19 @@ class InMemoryEmployeeRepository implements EmployeeRepository {
     if (index == -1) {
       throw StateError('Employee not found: $currentId');
     }
-    _employees[index] = Employee.fromMap(employee);
+    final model = Employee.fromMap(employee);
+    _ensureUniqueId(model.id, exceptIndex: index);
+    _employees[index] = model;
+  }
+
+  void _ensureUniqueId(String id, {int? exceptIndex}) {
+    final normalizedId = id.trim().toLowerCase();
+    final duplicateIndex = _employees.indexWhere(
+      (employee) => employee.id.trim().toLowerCase() == normalizedId,
+    );
+    if (duplicateIndex != -1 && duplicateIndex != exceptIndex) {
+      throw StateError('Employee ID already exists: $id');
+    }
   }
 
   @override
