@@ -55,6 +55,12 @@ void main() {
       );
     });
 
+    test('allows the same department ID in separate factories', () {
+      repository.add(department('D-1', 'SEW', factoryId: 'F-1'));
+      repository.add(department('D-1', 'CUT', factoryId: 'F-2'));
+      expect(repository.getByFactory('ORG-1', 'F-2'), hasLength(1));
+    });
+
     test('deletes only from the specified factory', () {
       repository.add(department('D-1', 'SEW'));
       repository.add(department('D-2', 'SEW', factoryId: 'F-2'));
