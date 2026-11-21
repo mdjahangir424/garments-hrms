@@ -1,6 +1,7 @@
-
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../app/app_config.dart';
 import '../../core/widgets/sidebar.dart';
 import '../employees/employees_screen.dart';
 import 'widgets/dashboard_content.dart';
@@ -9,14 +10,11 @@ class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() =>
-      _DashboardScreenState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final Color primary = const Color(0xFF2563EB);
-
-  bool showEmployees = false;
 
   final List<Map<String, String>> approvals = [
     {
@@ -53,10 +51,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  void openEmployees(bool isMobile) {
-    setState(() {
-      showEmployees = true;
-    });
+  void openRoute(String route, {required bool isMobile}) {
+    context.go(route);
 
     if (isMobile) {
       Navigator.of(context).maybePop();
@@ -65,6 +61,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEmployeesRoute =
+        GoRouterState.of(context).uri.path == AppRoutes.employees;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 850;
@@ -75,8 +74,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: SafeArea(
                     child: Sidebar(
                       primary: primary,
+                      employeesSelected: isEmployeesRoute,
+                      onDashboardTap: () {
+                        openRoute(
+                          AppRoutes.dashboard,
+                          isMobile: true,
+                        );
+                      },
                       onEmployeesTap: () {
-                        openEmployees(true);
+                        openRoute(
+                          AppRoutes.employees,
+                          isMobile: true,
+                        );
                       },
                     ),
                   ),
@@ -86,9 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ? AppBar(
                   backgroundColor: Colors.white,
                   title: Text(
-                    showEmployees
-                        ? 'Employees'
-                        : 'Garments HRMS',
+                    isEmployeesRoute ? 'Employees' : 'Garments HRMS',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -103,13 +110,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   width: 245,
                   child: Sidebar(
                     primary: primary,
+                    employeesSelected: isEmployeesRoute,
+                    onDashboardTap: () {
+                      openRoute(
+                        AppRoutes.dashboard,
+                        isMobile: false,
+                      );
+                    },
                     onEmployeesTap: () {
-                      openEmployees(false);
+                      openRoute(
+                        AppRoutes.employees,
+                        isMobile: false,
+                      );
                     },
                   ),
                 ),
               Expanded(
-                child: showEmployees
+                child: isEmployeesRoute
                     ? const EmployeesScreen()
                     : DashboardContent(
                         isMobile: isMobile,
