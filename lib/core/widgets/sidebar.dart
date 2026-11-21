@@ -1,13 +1,16 @@
-
 import 'package:flutter/material.dart';
 
 class Sidebar extends StatelessWidget {
   final Color primary;
+  final bool employeesSelected;
+  final VoidCallback? onDashboardTap;
   final VoidCallback? onEmployeesTap;
 
   const Sidebar({
     super.key,
     required this.primary,
+    this.employeesSelected = false,
+    this.onDashboardTap,
     this.onEmployeesTap,
   });
 
@@ -121,11 +124,13 @@ class Sidebar extends StatelessWidget {
           menuItem(
             Icons.dashboard_rounded,
             'Dashboard',
-            selected: true,
+            selected: !employeesSelected,
+            onTap: onDashboardTap,
           ),
           menuItem(
             Icons.people_outline,
             'Employees',
+            selected: employeesSelected,
             onTap: onEmployeesTap,
           ),
           menuItem(Icons.person_add_alt_1, 'Recruitment'),
