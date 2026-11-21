@@ -46,6 +46,32 @@ void main() {
       );
     });
 
+    test('rejects duplicate employee IDs regardless of case', () {
+      expect(
+        () => repository.add({
+          'id': 'emp-001',
+          'name': 'Duplicate',
+          'department': 'Sewing',
+          'designation': 'Operator',
+          'status': 'Active',
+        }),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('rejects changing an employee to another employee ID', () {
+      expect(
+        () => repository.update('EMP-001', {
+          'id': 'emp-002',
+          'name': 'Rahim Ahmed',
+          'department': 'Sewing',
+          'designation': 'Operator',
+          'status': 'Active',
+        }),
+        throwsA(isA<StateError>()),
+      );
+    });
+
     test('deletes an employee by ID', () {
       repository.delete('EMP-002');
 
