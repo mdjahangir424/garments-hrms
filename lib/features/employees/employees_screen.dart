@@ -272,7 +272,9 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   Future<void> _showEditEmployeeDialog(
     Map<String, String> employee,
   ) async {
-    final employeeIndex = employees.indexOf(employee);
+    final employeeIndex = employees.indexWhere(
+      (item) => item['id'] == employee['id'],
+    );
 
     if (employeeIndex == -1) return;
 

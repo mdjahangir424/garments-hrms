@@ -22,7 +22,9 @@ class InMemoryFactoryRepository implements FactoryRepository {
   void add(Factory factory) {
     _validate(factory);
     _ensureUniqueCode(factory);
-    if (_factories.any((item) => item.id == factory.id)) {
+    if (_factories.any((item) =>
+        item.organizationId == factory.organizationId &&
+        item.id == factory.id)) {
       throw StateError('Factory ID already exists: ${factory.id}');
     }
     _factories.add(factory);

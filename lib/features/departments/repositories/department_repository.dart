@@ -26,7 +26,10 @@ class InMemoryDepartmentRepository implements DepartmentRepository {
   void add(Department department) {
     _validate(department);
     _ensureUniqueCode(department);
-    if (_departments.any((item) => item.id == department.id)) {
+    if (_departments.any((item) =>
+        item.organizationId == department.organizationId &&
+        item.factoryId == department.factoryId &&
+        item.id == department.id)) {
       throw StateError('Department ID already exists: ${department.id}');
     }
     _departments.add(department);
