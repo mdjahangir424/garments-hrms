@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 
+import 'models/employee.dart';
 import 'repositories/employee_repository.dart';
 
 class EmployeesScreen extends StatefulWidget {
@@ -65,24 +66,28 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         _formField(
                           controller: idController,
                           label: 'Employee ID',
+                          fieldKey: 'id',
                           hint: 'Example: EMP-004',
                         ),
                         const SizedBox(height: 14),
                         _formField(
                           controller: nameController,
                           label: 'Full Name',
+                          fieldKey: 'name',
                           hint: 'Enter employee name',
                         ),
                         const SizedBox(height: 14),
                         _formField(
                           controller: departmentController,
                           label: 'Department',
+                          fieldKey: 'department',
                           hint: 'Example: Sewing',
                         ),
                         const SizedBox(height: 14),
                         _formField(
                           controller: designationController,
                           label: 'Designation',
+                          fieldKey: 'designation',
                           hint: 'Example: Operator',
                         ),
                         const SizedBox(height: 14),
@@ -308,24 +313,28 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         _formField(
                           controller: idController,
                           label: 'Employee ID',
+                          fieldKey: 'id',
                           hint: 'Enter employee ID',
                         ),
                         const SizedBox(height: 14),
                         _formField(
                           controller: nameController,
                           label: 'Full Name',
+                          fieldKey: 'name',
                           hint: 'Enter employee name',
                         ),
                         const SizedBox(height: 14),
                         _formField(
                           controller: departmentController,
                           label: 'Department',
+                          fieldKey: 'department',
                           hint: 'Enter department',
                         ),
                         const SizedBox(height: 14),
                         _formField(
                           controller: designationController,
                           label: 'Designation',
+                          fieldKey: 'designation',
                           hint: 'Enter designation',
                         ),
                         const SizedBox(height: 14),
@@ -494,6 +503,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
     required TextEditingController controller,
     required String label,
     required String hint,
+    required String fieldKey,
   }) {
     return TextFormField(
       controller: controller,
@@ -502,12 +512,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
         hintText: hint,
         border: const OutlineInputBorder(),
       ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return 'Please enter $label';
-        }
-        return null;
-      },
+      validator: (value) => Employee.validateField(fieldKey, value),
     );
   }
 
