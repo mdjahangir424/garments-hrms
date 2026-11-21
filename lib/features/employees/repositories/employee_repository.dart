@@ -52,7 +52,7 @@ class InMemoryEmployeeRepository implements EmployeeRepository {
 
   @override
   void update(String currentId, Map<String, String> employee) {
-    final index = _employees.indexWhere((item) => item['id'] == currentId);
+    final index = _employees.indexWhere((item) => item.id == currentId);
     if (index == -1) {
       throw StateError('Employee not found: $currentId');
     }
