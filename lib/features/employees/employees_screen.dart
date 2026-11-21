@@ -398,7 +398,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         'designation':
                             designationController.text.trim(),
                         'status': editedStatus,
-                      };
+                      });
                     });
 
                     Navigator.pop(dialogContext);
