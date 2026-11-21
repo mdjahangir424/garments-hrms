@@ -11,7 +11,13 @@ The project is configured to deploy to GitHub Pages through GitHub Actions.
 3. Wait for the **Deploy Flutter Web to GitHub Pages** workflow to finish successfully.
 4. Open the Pages URL shown in the workflow deployment environment.
 
-Changes pushed to development branches do not publish the live website. Merge approved changes into `main` when they are ready to deploy.
+The deployment workflow runs only from `main`, so development branch commits do not change the live website. The web build also publishes a `404.html` fallback so client-side routes can be reopened from a browser URL.
+
+## Navigation
+
+- `/dashboard` — Dashboard
+- `/employees` — Employees
+- The root URL redirects to `/dashboard`.
 
 ## Important
 
