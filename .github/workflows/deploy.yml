@@ -1,8 +1,10 @@
-
 name: Deploy Flutter Web to GitHub Pages
 
 on:
-    workflow_dispatch:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -29,8 +31,14 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Run Tests
+        run: flutter test
+
       - name: Build Flutter Web
         run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+
+      - name: Configure GitHub Pages SPA Routing
+        run: cp build/web/index.html build/web/404.html
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
@@ -48,4 +56,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-

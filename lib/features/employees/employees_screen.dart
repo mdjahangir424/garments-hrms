@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 
+import 'repositories/employee_repository.dart';
+
 class EmployeesScreen extends StatefulWidget {
   const EmployeesScreen({super.key});
 
@@ -14,29 +16,10 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   final TextEditingController searchController =
       TextEditingController();
 
-  final List<Map<String, String>> employees = [
-    {
-      'id': 'EMP-001',
-      'name': 'Rahim Ahmed',
-      'department': 'Sewing',
-      'designation': 'Operator',
-      'status': 'Active',
-    },
-    {
-      'id': 'EMP-002',
-      'name': 'Nusrat Jahan',
-      'department': 'Quality',
-      'designation': 'Quality Inspector',
-      'status': 'Active',
-    },
-    {
-      'id': 'EMP-003',
-      'name': 'Karim Uddin',
-      'department': 'Finishing',
-      'designation': 'Supervisor',
-      'status': 'Inactive',
-    },
-  ];
+  final EmployeeRepository employeeRepository =
+      InMemoryEmployeeRepository();
+
+  List<Map<String, String>> get employees => employeeRepository.getAll();
 
   String selectedFilter = 'All';
   String searchQuery = '';
@@ -163,7 +146,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     }
 
                     setState(() {
-                      employees.add({
+                      employeeRepository.add({
                         'id': employeeId,
                         'name': nameController.text.trim(),
                         'department':
@@ -407,7 +390,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                     }
 
                     setState(() {
-                      employees[employeeIndex] = {
+                      employeeRepository.update(employee['id']!, {
                         'id': editedId,
                         'name': nameController.text.trim(),
                         'department':
@@ -415,7 +398,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
                         'designation':
                             designationController.text.trim(),
                         'status': editedStatus,
-                      };
+                      });
                     });
 
                     Navigator.pop(dialogContext);
@@ -450,7 +433,7 @@ class _EmployeesScreenState extends State<EmployeesScreen> {
   // DELETE EMPLOYEE
   void _deleteEmployee(Map<String, String> employee) {
     setState(() {
-      employees.remove(employee);
+      employeeRepository.delete(employee['id']!);
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
