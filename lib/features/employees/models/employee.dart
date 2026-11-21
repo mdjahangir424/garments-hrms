@@ -32,16 +32,31 @@ class Employee {
         'status': status,
       };
 
+  /// Validates one form field and returns a message when invalid.
+  static String? validateField(String field, String? rawValue) {
+    final value = rawValue?.trim() ?? '';
+    if (value.isEmpty) {
+      switch (field) {
+        case 'id': return 'Employee ID is required.';
+        case 'name': return 'Name is required.';
+        case 'department': return 'Department is required.';
+        case 'designation': return 'Designation is required.';
+      }
+    }
+    return null;
+  }
+
   /// Returns field-specific validation errors. Empty means valid.
   Map<String, String> validate() {
     final errors = <String, String>{};
-    if (id.trim().isEmpty) errors['id'] = 'Employee ID is required.';
-    if (name.trim().isEmpty) errors['name'] = 'Name is required.';
-    if (department.trim().isEmpty) {
-      errors['department'] = 'Department is required.';
-    }
-    if (designation.trim().isEmpty) {
-      errors['designation'] = 'Designation is required.';
+    for (final field in ['id', 'name', 'department', 'designation']) {
+      final message = validateField(field, switch (field) {
+        'id' => id,
+        'name' => name,
+        'department' => department,
+        _ => designation,
+      });
+      if (message != null) errors[field] = message;
     }
     if (status != 'Active' && status != 'Inactive') {
       errors['status'] = 'Status must be Active or Inactive.';
